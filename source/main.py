@@ -15,14 +15,11 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.content.startswith(prefix):
+    if message.content.startswith(prefix) or message.author == client.user:
         return
 
-    if message.author == client.user:
-        return
-
-    goose_expectation = {'ЗАПУСКАЕМ\n░','g'}
-
+    goose_expectation = {'ЗАПУСКАЕМ\n░','запускайте гуся', 'гуся!'}
+   
     for taken_goose in goose_expectation:
         if message.content.startswith(taken_goose):
             await message.channel.send('ЗАПУСКАЕМ\n'
@@ -33,9 +30,9 @@ async def on_message(message):
                                        '░░░░▌░░░░░▐▄▄░░░░░\n'
                                        '░░░░▌░░░░▄▀▒▒▀▀▀▀▄\n'
                                        '░░░▐░░░░▐▒▒▒▒▒▒▒▒▀▀▄\n'
-                                       '░░░▐░░░░▐▄▒▒▒▒▒▒▒▒▒▒▀▄\n'
+                                       '░░░▐░░░░▐▒▒▒▒▒▒▒▒▒▒▒▀▄\n'
                                        '░░░▐░░░░▀▄▒▒▒▒▒▒▒▒▒▒▒▄\n'
-                                       '░░░░▀▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▄▀▄\n'
+                                       '░░░░▀▄▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▀▄\n'
                                        '░░░░░░░░░░░▌▌░▌▌░░░░░\n'
                                        '░░░░░░░░░░░▌▌░▌▌░░░░░\n'
                                        '░░░░░░░░░▄▄▌▌▄▌▌░░░░░\n')
