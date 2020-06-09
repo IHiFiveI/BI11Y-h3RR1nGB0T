@@ -19,7 +19,12 @@ async def on_message(message):
         return
 
     goose_expectation = {'ЗАПУСКАЕМ\n░','запускайте гуся', 'гуся!'}
-   
+    f_expectation = {'f', 'ффф'}
+
+    for taken_f in f_expectation:
+        if message.content.endswith(taken_f) and message.content.startswith(taken_f):
+            await message.channel.send(':regional_indicator_f:')
+
     for taken_goose in goose_expectation:
         if message.content.startswith(taken_goose):
             await message.channel.send('ЗАПУСКАЕМ\n'
