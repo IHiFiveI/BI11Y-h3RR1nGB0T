@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class MessageMe(commands.Cog):
+class SimpleMessages(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -41,4 +41,4 @@ class MessageMe(commands.Cog):
                                            '░░░░░░░░░▄▄▌▌▄▌▌░░░░░\n')
 
 def setup(client):
-    client.add_cog(MessageMe(client))
+    client.add_cog(SimpleMessages(client))

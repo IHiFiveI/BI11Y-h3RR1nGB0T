@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class Orders(commands.Cog):
+class SimpleOrders(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -31,4 +31,4 @@ class Orders(commands.Cog):
             print('bot was ping-ponged out of existance\n')
 
 def setup(client):
-    client.add_cog(Orders(client))
+    client.add_cog(SimpleOrders(client))
