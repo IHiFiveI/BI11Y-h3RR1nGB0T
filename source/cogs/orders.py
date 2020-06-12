@@ -10,7 +10,7 @@ class Orders(commands.Cog):
 
     @commands.command()
     async def slap(self, ctx):
-        print(ctx)
+        print('{}\n'.format(ctx))
 
     @commands.command()
     async def ping(self, ctx):

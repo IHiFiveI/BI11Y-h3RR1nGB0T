@@ -10,7 +10,8 @@ class MessageMe(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("Initialized bot: {0.user}".format(self.client))
+        print('initialized bot: {0.user}\n'
+              '==============================================\n'.format(self.client))
 
     @commands.Cog.listener()
     async def on_message(self, message):
