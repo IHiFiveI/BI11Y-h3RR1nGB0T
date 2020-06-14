@@ -11,7 +11,7 @@ class MovieTierList(commands.Cog):
 
     @commands.command()
     async def mlist(self, ctx):
-        self.list = 'Список просмотренных фильмов:\n'
+        self.list = 'Список просмотренных фильмов:\n\n'
         for film in self.films_loaded:
             self.list += film['Name'] + "\n"
         await ctx.send(self.list)
@@ -31,6 +31,8 @@ class MovieTierList(commands.Cog):
         self.films_loaded += self.new_info
         with open('./json/film_list.json', 'w', encoding="utf-8") as f:
             f.write(json.dumps(self.films_loaded, sort_keys = False, indent = 2))
+        print('{} was successfully added\n'.format(arg))
+        await ctx.send('{} добавлен в список'.format(arg))
 
     @commands.command()
     async def mrm(self, ctx, arg = ''):
