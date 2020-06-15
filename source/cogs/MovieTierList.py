@@ -51,7 +51,6 @@ class MovieTierList(commands.Cog):
         for i in range(len(self.films_loaded)):
             if self.films_loaded[i]["Name"] == self.review_name:
                 for j in range(len(self.films_loaded[i]["Commentary"])):
-                    print('\n\ni: {}   j: {}\n\n'.format(i,j))
                     if self.films_loaded[i]["Commentary"][j]["reviewer_id"] == (ctx.message.author.id or ""):
                         self.films_loaded[i]["Commentary"][j]["reviewer_comment"] = self.review_comment
                         self.films_loaded[i]["Commentary"][j]["rate"] = self.review_rate
@@ -84,6 +83,27 @@ class MovieTierList(commands.Cog):
         else:
             print('{} was not found\n'.format(self.name))
             await ctx.send('{} не найден. Может, его никогда и не было?'.format(self.name))
+
+    @commands.command()
+    async def mstat(self, ctx, *, arg = ''):
+        self.review_name = self.movie_rev_parse(arg, 1)
+        self.comment_to_show = ''
+        for i in range(len(self.films_loaded)):
+            if self.films_loaded[i]["Name"] == self.review_name:
+                for j in range(len(self.films_loaded[i]["Commentary"])):
+                    try:
+                        self.comment_to_show += '```\nОбзорщик: ' + str(await self.client.fetch_user(self.films_loaded[i]["Commentary"][j]["reviewer_id"]))
+                    except:
+                        self.comment_to_show += '```\nОбзорщик: Неизвестный'
+                    self.comment_to_show += '\nОценка: ' + self.films_loaded[i]["Commentary"][j]["rate"]
+                    self.comment_to_show += '\\10\nКомментарий: ' + self.films_loaded[i]["Commentary"][j]["reviewer_comment"]
+                    self.comment_to_show += '\n```'
+            elif i == len(self.films_loaded) - 1:
+                print('{} film was not found []\n'.format(self.review_name))
+                await ctx.send('Фильм "{}" не был обнаружен'.format(self.review_name))
+                break
+        await ctx.send(':film_frames:Обзор на ' + self.review_name + ':')
+        await ctx.send(self.comment_to_show)
 
     def movie_rev_parse(self, name, number):
         self.viewer_parts = name.split("]")
