@@ -9,6 +9,9 @@ class MovieTierList(commands.Cog):
         with open('./json/film_list.json', 'r') as f:
             self.films_loaded = json.loads(f.read())
 
+    def __enter__(self):
+        return self
+
     @commands.command()
     async def mlist(self, ctx):
         self.list = 'Список просмотренных фильмов:\n\n'
@@ -37,30 +40,32 @@ class MovieTierList(commands.Cog):
 
     @commands.command()
     async def maddrev(self, ctx, *, arg = ''):
+        self.review_name = self.movie_rev_parse(arg, 1)
+        self.review_rate = self.movie_rev_parse(arg, 2)
+        self.review_comment = self.movie_rev_parse(arg, 3)
         self.new_commentary = [{
             "reviewer_id": ctx.message.author.id,
-            "reviewer_comment": self.movie_rev_parse(arg, 3),
-            "rate": self.movie_rev_parse(arg, 2)
+            "reviewer_comment": self.review_comment,
+            "rate": self.review_rate
         }]
-        is_written = False
-        while not is_written:
-            for i in range(len(self.films_loaded)):
+        for i in range(len(self.films_loaded)):
+            if self.films_loaded[i]["Name"] == self.review_name:
                 for j in range(len(self.films_loaded[i]["Commentary"])):
                     print('\n\ni: {}   j: {}\n\n'.format(i,j))
-                    if self.films_loaded[i]["Name"] == self.movie_rev_parse(arg, 1):
-                        # TODO: переписать всё к чёрту я не понимаю когда оно работает а когда нет
-                        # if self.films_loaded[i]["Commentary"][j]["reviewer_id"] == ctx.message.author.id:
-                        #     print("11111111111")
-                        #     self.films_loaded[i]["Commentary"][j]["reviewer_comment"] = self.movie_rev_parse(arg, 3)
-                        #     self.films_loaded[i]["Commentary"][j]["rate"] = self.movie_rev_parse(arg, 2)
-                        #     is_written = True
-                        #     break
-                        # # else:
-                        # #     self.films_loaded[i]["Commentary"] += self.new_commentary
-                        # # is_written = True
-                        # # break
+                    if self.films_loaded[i]["Commentary"][j]["reviewer_id"] == (ctx.message.author.id or ""):
+                        self.films_loaded[i]["Commentary"][j]["reviewer_comment"] = self.review_comment
+                        self.films_loaded[i]["Commentary"][j]["rate"] = self.review_rate
+                        print(self.films_loaded[i]["Commentary"][j]["reviewer_comment"])
+                        break
+                    elif j == len(self.films_loaded[i]["Commentary"]) - 1:
+                        self.films_loaded[i]["Commentary"] += self.new_commentary
+                        break
+            elif i == len(self.films_loaded) - 1:
+                print('{} film was not found\n'.format(self.review_name))
+                await ctx.send('Фильм "{}" не был обнаружен. Добавь его с помошью ",madd "!'.format(self.review_name))
+                break
         with open('./json/film_list.json', 'w', encoding="utf-8") as f:
-            f.write(json.dumps(self.films_loaded, sort_keys=False, indent=2))
+            f.write(json.dumps(self.films_loaded, sort_keys = False, indent = 2))
 
     @commands.command()
     async def mrm(self, ctx, *, arg = ''):
@@ -72,7 +77,7 @@ class MovieTierList(commands.Cog):
                 self.is_deleted = True
                 break
         with open('./json/film_list.json', 'w', encoding="utf-8") as f:
-            f.write(json.dumps(self.films_loaded, sort_keys=False, indent=2))
+            f.write(json.dumps(self.films_loaded, sort_keys = False, indent = 2))
         if self.is_deleted:
             print('{} was successfully removed\n'.format(self.name))
             await ctx.send('{} был удалён из списка. И ладно.'.format(self.name))
