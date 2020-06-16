@@ -1,5 +1,6 @@
-import discord
 import os
+
+import discord
 from discord.ext import commands
 
 f = open('info.txt', 'r')
@@ -25,6 +26,13 @@ async def reload(ctx, extention):
     client.unload_extension(f'cogs.{extention}')
     client.load_extension(f'cogs.{extention}')
     print(extention + ' cog reloaded successfully\n')
+
+def is_permission_granted(ctx, id):
+    whitelist = ['485330482276466698','0']
+    for member in whitelist:
+        if str(id) == member:
+            return True
+    return False
 
 for filename in os.listdir('./source/cogs'):
     if filename.endswith('.py'):
