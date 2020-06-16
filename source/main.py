@@ -8,6 +8,7 @@ f.close()
 prefix = ','
 
 client = commands.Bot(command_prefix = prefix)
+client.remove_command('help')
 
 @client.command()
 async def load(ctx, extention):

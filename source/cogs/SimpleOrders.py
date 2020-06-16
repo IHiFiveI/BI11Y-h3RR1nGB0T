@@ -9,8 +9,12 @@ class SimpleOrders(commands.Cog):
         self.pongEnding = '!'
 
     @commands.command()
-    async def slap(self, ctx):
-        print('{}\n'.format(ctx))
+    async def clear(self, ctx, arg = 1):
+        await ctx.channel.purge(limit = arg + 1)
+
+    @commands.command()
+    async def help(self, ctx):
+        await ctx.send('asdasda')
 
     @commands.command()
     async def ping(self, ctx):
