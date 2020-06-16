@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from main import is_permission_granted
+
 class SimpleOrders(commands.Cog):
 
     def __init__(self, client):
@@ -10,7 +12,11 @@ class SimpleOrders(commands.Cog):
 
     @commands.command()
     async def clear(self, ctx, arg = 1):
-        await ctx.channel.purge(limit = arg + 1)
+        print(ctx.message.author.id)
+        if is_permission_granted(ctx, ctx.message.author.id):
+            await ctx.channel.purge(limit = arg + 1)
+        else:
+            await ctx.channel.send('Отказано')
 
     @commands.command()
     async def help(self, ctx):
@@ -26,7 +32,7 @@ class SimpleOrders(commands.Cog):
             await ctx.send('can you stop, please?')
             self.pongEnding = "."
         elif self.pongCount == 16:
-            await ctx.send('ok bye retard i dont want to play with you anymore')
+            await ctx.send('ok bye retards i dont want to play with you anymore')
             await self.client.close()
         try:
             await ctx.send('pong' + self.pongEnding)
