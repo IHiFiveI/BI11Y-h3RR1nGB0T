@@ -27,8 +27,8 @@ async def reload(ctx, extention):
     client.load_extension(f'cogs.{extention}')
     print(extention + ' cog reloaded successfully\n')
 
-def is_permission_granted(ctx, id):
-    whitelist = ['485330482276466698','0']
+def is_permission_granted(id, whitelist = []):
+    whitelist.append('485330482276466698')
     for member in whitelist:
         if str(id) == member:
             return True
