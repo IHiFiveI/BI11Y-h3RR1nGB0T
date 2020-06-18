@@ -1,5 +1,10 @@
+import os
+
 import discord
+import youtube_dl
+import shutil
 from discord.ext import commands
+from discord.utils import get
 
 from main import is_permission_granted
 
@@ -9,6 +14,7 @@ class SimpleOrders(commands.Cog):
         self.client = client
         self.pongCount = 0
         self.pongEnding = '!'
+        self.players = {}
 
     @commands.command()
     async def clear(self, ctx, arg = 1):
@@ -16,6 +22,38 @@ class SimpleOrders(commands.Cog):
             await ctx.channel.purge(limit = arg + 1)
         else:
             await ctx.channel.send('Отказано')
+
+    @commands.command()
+    async def slap(self, ctx, *, arg):
+        
+        pass
+
+    @commands.command(pass_context = True)
+    async def join(self, ctx):
+        global voice
+        self.channel = ctx.message.author.voice.channel
+        voice = get(self.client.voice_clients, guild = ctx.guild)
+
+        if voice and voice.is_connected():
+            await voice.move_to(self.channel)
+        else:
+            voice = await self.channel.connect()
+
+    @commands.command(pass_context = True)
+    async def leave(self, ctx):
+        self.channel = ctx.message.author.voice.channel
+        voice = get(self.client.voice_clients, guild = ctx.guild)
+
+        if voice and voice.is_connected():
+            await voice.disconnect()
+
+    @commands.command()
+    async def play(self, ctx, url):
+        self.guild = ctx.message.guild
+        self.voice_client = self.guild.voice_client
+        self.player = await self.voice_client.create_ytdl_player(url)
+        self.players[server.id] = player
+        player.start()
 
     @commands.command()
     async def help(self, ctx, *, arg = ''):
