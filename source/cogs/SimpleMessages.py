@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from main import prefix
+from main import is_permission_granted
 
 class SimpleMessages(commands.Cog):
 
@@ -22,7 +23,7 @@ class SimpleMessages(commands.Cog):
         if message.content.startswith(prefix) or message.author == self.client.user:
             return
 
-        if message.author.id == 485330482276466698:
+        if is_permission_granted(message.author.id):
             if self.second_h5message:
                 await message.add_reaction('🤚')
             self.second_h5message = not self.second_h5message
