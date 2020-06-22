@@ -1,5 +1,6 @@
-import discord
 import os
+
+import discord
 from discord.ext import commands
 
 f = open('info.txt', 'r')
@@ -8,6 +9,7 @@ f.close()
 prefix = ','
 
 client = commands.Bot(command_prefix = prefix)
+client.remove_command('help')
 
 @client.command()
 async def load(ctx, extention):
@@ -24,6 +26,13 @@ async def reload(ctx, extention):
     client.unload_extension(f'cogs.{extention}')
     client.load_extension(f'cogs.{extention}')
     print(extention + ' cog reloaded successfully\n')
+
+def is_permission_granted(id, whitelist = []):
+    whitelist.append('485330482276466698')
+    for member in whitelist:
+        if str(id) == member:
+            return True
+    return False
 
 for filename in os.listdir('./source/cogs'):
     if filename.endswith('.py'):
