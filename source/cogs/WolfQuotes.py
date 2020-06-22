@@ -1,10 +1,13 @@
 import sys
+import os
 import random
 
 import discord
 from discord.ext import commands
 import json
-import cv2
+import requests
+import shutil
+# import cv2
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -14,13 +17,31 @@ class WolfQuotes(commands.Cog):
         self.client = client
         with open('./json/wolf_quotes.json', 'r', encoding='UTF-8') as f:
             self.qoutes = json.loads(f.read())
-        self.image = Image.open('./images/file.png')
-        self.draw = ImageDraw.Draw(self.image)
         self.font = ImageFont.truetype('./fonts/comicbd.ttf', size=72, encoding='UTF-8')
+
+    def download_image(self, url='https://cdn.pixabay.com/photo/2020/02/06/09/39/summer-4823612_960_720.jpg'):
+        self.file_name = url.split('/')[-1]
+        self.req = requests.get(url, stream=True)
+        if self.req.status_code == 200:
+            self.req.raw.decode_content = True
+            with open('./images/' + self.file_name, 'wb') as f:
+                shutil.copyfileobj(self.req.raw, f)
+                print('image {} downloaded successfully\n'.format(self.file_name))
+        else:
+            print('access to image {} cant be granted\n'.format(self.file_name))
 
     @commands.command()
     async def wolf(self, ctx):
+        try:
+            self.download_image(ctx.message.attachments[0].url)
+        except:
+            await ctx.send('Прикрепи картинку то хоть')
+        await ctx.channel.purge(limit=1)
+        self.file_name = ctx.message.attachments[0].url.split('/')[-1]
+        self.image = Image.open('./images/' + self.file_name)
+        self.draw = ImageDraw.Draw(self.image)
         self.text = random.choice(self.qoutes)
+        self.font.size = 12
 
         self.text_width, self.text_height = self.draw.textsize(self.text, font=self.font)
         self.x_pos = self.image.size[0] * 0.5 - self.text_width * 0.5
@@ -39,7 +60,12 @@ class WolfQuotes(commands.Cog):
 
         self.draw.text((self.x_pos, self.y_pos), self.text, fill='rgb(255,255,255)',
                        font=self.font, align="center")
-        self.image.save('./images/file1.png', format=None)
+        self.image.save('./images/' + 'wolk\'ed_' + self.file_name, format=None)
+
+        await ctx.channel.send(file=discord.File('./images/' + 'wolk\'ed_' + self.file_name))
+
+        os.remove('./images/' + 'wolk\'ed_' + self.file_name)
+        os.remove('./images/' + self.file_name)
 
 
 def setup(client):
