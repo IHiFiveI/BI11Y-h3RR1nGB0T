@@ -43,29 +43,22 @@ class SimpleOrders(commands.Cog):
         if self.slap_channel == '':
             await ctx.send('Некому сделать slapp :(')
             return
-        # self.voice = get(self.client.voice_clients, guild=ctx.guild)
+        self.voice = get(self.client.voice_clients, guild=ctx.guild)
 
-        # if self.voice and self.voice.is_connected():
-        #     await self.voice.move_to(self.slap_channel)
-        # else:
-        #     self.voice = await self.slap_channel.connect()
+        if self.voice and self.voice.is_connected():
+            await self.voice.move_to(self.slap_channel)
+        else:
+            self.voice = await self.slap_channel.connect()
 
-        # self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
-        # self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
-        # self.voice.source.volume = 0.1
-        # while not player.is_done():
-        #     await asyncio.sleep(1)
-        # await ctx.send("Подтверждаю SLAPP")
-
-        # if self.voice and self.voice.is_connected():
-        #     await self.voice.disconnect()
-        self.vc = await self.slap_channel.connect()
-        self.player = vc.create_ffmpeg_player('slap.mp3', after=lambda: print('done'))
-        self.player.start()
-        while not player.is_done():
+        self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
+        self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
+        self.voice.source.volume = 0.6
+        while self.voice.is_playing():
             await asyncio.sleep(1)
-        self.player.stop()
-        await self.vc.disconnect()
+        await ctx.send("Подтверждаю SLAPP")
+
+        if self.voice and self.voice.is_connected():
+            await self.voice.disconnect()
 
     def mention_to_id(self, arg):
         if len(arg) == 22:
