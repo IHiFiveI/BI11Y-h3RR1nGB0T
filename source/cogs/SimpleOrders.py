@@ -3,6 +3,7 @@ import os
 import discord
 import youtube_dl
 import shutil
+import asyncio
 from discord.ext import commands
 from discord.utils import get
 
@@ -25,22 +26,57 @@ class SimpleOrders(commands.Cog):
             await ctx.channel.send('Отказано')
 
     @commands.command(pass_context=True, aliases=['slapp', 's'])
-    async def slap(self, ctx, *, arg):
-        self.voice = get(self.client.voice_clients, guild=ctx.guild)
-        self.channel = ctx.message.author.voice.channel
-        if self.voice and self.voice.is_connected():
-            await self.voice.move_to(self.channel)
-        else:
-            self.voice = await self.channel.connect()
+    async def slap(self, ctx, *, arg=''):
+        if arg == 'bass' or arg == 'BASS':
+            await ctx.channel.send(file=discord.File('./images/mystery.png'))
+            return
+        arg = self.mention_to_id(arg)
+        if not arg:
+            await ctx.send("SLAPP не удастся....")
+            return
 
-        self.voice.play(discord.FFmpegPCMAudio('./audio/Rhythm_Changes.mp3'))
-        self.voice.source = discord.PCMVolumeTransformer(voice.source)
-        self.voice.source.volume = 0.07
+        self.slap_channel = ''
+        for channel_to_search in ctx.guild.voice_channels:
+            for member in channel_to_search.members:
+                if member.id == arg:
+                    self.slap_channel = member.voice.channel
+        if self.slap_channel == '':
+            await ctx.send('Некому сделать slapp :(')
+            return
+        # self.voice = get(self.client.voice_clients, guild=ctx.guild)
 
-        await ctx.send("Slapped")
+        # if self.voice and self.voice.is_connected():
+        #     await self.voice.move_to(self.slap_channel)
+        # else:
+        #     self.voice = await self.slap_channel.connect()
 
-        if self.voice and self.voice.is_connected():
-            await self.voice.disconnect()
+        # self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
+        # self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
+        # self.voice.source.volume = 0.1
+        # while not player.is_done():
+        #     await asyncio.sleep(1)
+        # await ctx.send("Подтверждаю SLAPP")
+
+        # if self.voice and self.voice.is_connected():
+        #     await self.voice.disconnect()
+        self.vc = await self.slap_channel.connect()
+        self.player = vc.create_ffmpeg_player('slap.mp3', after=lambda: print('done'))
+        self.player.start()
+        while not player.is_done():
+            await asyncio.sleep(1)
+        self.player.stop()
+        await self.vc.disconnect()
+
+    def mention_to_id(self, arg):
+        if len(arg) == 22:
+            for letter in '<>@!':
+                arg = arg.replace(letter, "")
+        try:
+            arg = int(arg)
+        except:
+            print('cannot convert argument to int\n')
+            arg = 0
+        return arg
 
     @commands.command()
     async def help(self, ctx, *, arg=''):
