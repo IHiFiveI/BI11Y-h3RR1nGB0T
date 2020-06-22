@@ -8,6 +8,7 @@ from discord.utils import get
 
 from main import is_permission_granted
 
+
 class SimpleOrders(commands.Cog):
 
     def __init__(self, client):
@@ -17,46 +18,32 @@ class SimpleOrders(commands.Cog):
         self.players = {}
 
     @commands.command()
-    async def clear(self, ctx, arg = 1):
+    async def clear(self, ctx, arg=1):
         if is_permission_granted(ctx.message.author.id):
-            await ctx.channel.purge(limit = arg + 1)
+            await ctx.channel.purge(limit=arg + 1)
         else:
             await ctx.channel.send('Отказано')
 
-    @commands.command()
+    @commands.command(pass_context=True, aliases=['slapp', 's'])
     async def slap(self, ctx, *, arg):
-        
-        pass
-
-    @commands.command(pass_context = True)
-    async def join(self, ctx):
-        global voice
+        self.voice = get(self.client.voice_clients, guild=ctx.guild)
         self.channel = ctx.message.author.voice.channel
-        voice = get(self.client.voice_clients, guild = ctx.guild)
-
-        if voice and voice.is_connected():
-            await voice.move_to(self.channel)
+        if self.voice and self.voice.is_connected():
+            await self.voice.move_to(self.channel)
         else:
-            voice = await self.channel.connect()
+            self.voice = await self.channel.connect()
 
-    @commands.command(pass_context = True)
-    async def leave(self, ctx):
-        self.channel = ctx.message.author.voice.channel
-        voice = get(self.client.voice_clients, guild = ctx.guild)
+        self.voice.play(discord.FFmpegPCMAudio('./audio/Rhythm_Changes.mp3'))
+        self.voice.source = discord.PCMVolumeTransformer(voice.source)
+        self.voice.source.volume = 0.07
 
-        if voice and voice.is_connected():
-            await voice.disconnect()
+        await ctx.send("Slapped")
 
-    @commands.command()
-    async def play(self, ctx, url):
-        self.guild = ctx.message.guild
-        self.voice_client = self.guild.voice_client
-        self.player = await self.voice_client.create_ytdl_player(url)
-        self.players[server.id] = player
-        player.start()
+        if self.voice and self.voice.is_connected():
+            await self.voice.disconnect()
 
     @commands.command()
-    async def help(self, ctx, *, arg = ''):
+    async def help(self, ctx, *, arg=''):
         if arg == 'tech':
             await ctx.send(':wrench: Технические команды :tools:\n'
                            '(доступно лишь админимтраторам; не выводят ничего в чат)\n'
@@ -133,6 +120,7 @@ class SimpleOrders(commands.Cog):
             self.pongCount += 1
         except:
             print('bot was ping-ponged out of existance\n')
+
 
 def setup(client):
     client.add_cog(SimpleOrders(client))
