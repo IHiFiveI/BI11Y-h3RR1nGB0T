@@ -1,7 +1,14 @@
+import os
+
 import discord
+import youtube_dl
+import shutil
+import asyncio
 from discord.ext import commands
+from discord.utils import get
 
 from main import is_permission_granted
+
 
 class SimpleOrders(commands.Cog):
 
@@ -9,16 +16,63 @@ class SimpleOrders(commands.Cog):
         self.client = client
         self.pongCount = 0
         self.pongEnding = '!'
+        self.players = {}
 
     @commands.command()
-    async def clear(self, ctx, arg = 1):
+    async def clear(self, ctx, arg=1):
         if is_permission_granted(ctx.message.author.id):
-            await ctx.channel.purge(limit = arg + 1)
+            await ctx.channel.purge(limit=arg + 1)
         else:
             await ctx.channel.send('Отказано')
 
+    @commands.command(pass_context=True, aliases=['slapp', 's'])
+    async def slap(self, ctx, *, arg=''):
+        if arg == 'bass' or arg == 'BASS':
+            await ctx.channel.send(file=discord.File('./images/mystery.png'))
+            return
+        arg = self.mention_to_id(arg)
+        if not arg:
+            await ctx.send("SLAPP не удастся....")
+            return
+
+        self.slap_channel = ''
+        for channel_to_search in ctx.guild.voice_channels:
+            for member in channel_to_search.members:
+                if member.id == arg:
+                    self.slap_channel = member.voice.channel
+        if self.slap_channel == '':
+            await ctx.send('Некому сделать slapp :(')
+            return
+        self.voice = get(self.client.voice_clients, guild=ctx.guild)
+
+        if self.voice and self.voice.is_connected():
+            await self.voice.move_to(self.slap_channel)
+        else:
+            self.voice = await self.slap_channel.connect()
+
+        self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
+        self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
+        self.voice.source.volume = 0.6
+        while self.voice.is_playing():
+            await asyncio.sleep(1)
+        await ctx.send("Подтверждаю SLAPP")
+
+        if self.voice and self.voice.is_connected():
+            await self.voice.disconnect()
+
+    def mention_to_id(self, arg):
+        if len(arg) == 22:
+            for letter in '<>@!':
+                arg = arg.replace(letter, "")
+        try:
+            arg = int(arg)
+        except:
+            print('cannot convert argument to int\n')
+            arg = 0
+        return arg
+
     @commands.command()
-    async def help(self, ctx, *, arg = ''):
+    async def help(self, ctx, *, arg=''):
         if arg == 'tech':
             await ctx.send(':wrench: Технические команды :tools:\n'
                            '(доступно лишь админимтраторам; не выводят ничего в чат)\n'
@@ -95,6 +149,7 @@ class SimpleOrders(commands.Cog):
             self.pongCount += 1
         except:
             print('bot was ping-ponged out of existance\n')
+
 
 def setup(client):
     client.add_cog(SimpleOrders(client))
