@@ -14,8 +14,10 @@ from PIL import Image, ImageDraw, ImageFont
 class WolfQuotes(commands.Cog):
 
     def __init__(self, client):
-        self.font_size = 0
         self.client = client
+        self.font_size = 0
+        with open('./json/font_to_img_sizes_table.json', 'r', encoding='UTF-8') as f:
+            self.font_to_img_size = json.loads(f.read())
         with open('./json/wolf_quotes.json', 'r', encoding='UTF-8') as f:
             self.qoutes = json.loads(f.read())
 
@@ -41,49 +43,6 @@ class WolfQuotes(commands.Cog):
         self.file_name = ctx.message.attachments[0].url.split('/')[-1]
         self.image = Image.open('./images/' + self.file_name)
         self.draw = ImageDraw.Draw(self.image)
-
-        self.font_to_img_size = [
-            {
-                "resolution": 100,
-                "size_of_font": 8,
-                "how_much_to_add": 1
-            },
-            {
-                "resolution": 300,
-                "size_of_font": 20,
-                "how_much_to_add": 2
-            },
-            {
-                "resolution": 600,
-                "size_of_font": 30,
-                "how_much_to_add": 3
-            },
-            {
-                "resolution": 900,
-                "size_of_font": 48,
-                "how_much_to_add": 4
-            },
-            {
-                "resolution": 1200,
-                "size_of_font": 72,
-                "how_much_to_add": 5
-            },
-            {
-                "resolution": 1900,
-                "size_of_font": 96,
-                "how_much_to_add": 6
-            },
-            {
-                "resolution": 2600,
-                "size_of_font": 122,
-                "how_much_to_add": 7
-            },
-            {
-                "resolution": 3700,
-                "size_of_font": 176,
-                "how_much_to_add": 8
-            }
-        ]
 
         for position in self.font_to_img_size:
             if self.image.size[0] >= position["resolution"]:
