@@ -10,15 +10,15 @@ class MovieTierList(commands.Cog):
         with open('./json/film_list.json', 'r') as f:
             self.films_loaded = json.loads(f.read())
 
-    def __enter__(self):
-        return self
-
     @commands.command()
     async def mlist(self, ctx):
         self.list = 'Список просмотренных фильмов:\n\n'
         for film in self.films_loaded:
             self.list += film['Name'] + "\n"
-        await ctx.send(self.list)
+        if self.list != 'Список просмотренных фильмов:\n\n':
+            await ctx.send(self.list)
+        else:
+            await ctx.send('Список пуст.')
 
     @commands.command()
     async def madd(self, ctx, *, arg=''):
@@ -56,14 +56,13 @@ class MovieTierList(commands.Cog):
                         self.films_loaded[i]["Commentary"][j][
                             "reviewer_comment"] = self.review_comment
                         self.films_loaded[i]["Commentary"][j]["rate"] = self.review_rate
-                        print(self.films_loaded[i]["Commentary"][j]["reviewer_comment"])
                         break
                     elif j == len(self.films_loaded[i]["Commentary"]) - 1:
                         self.films_loaded[i]["Commentary"] += self.new_commentary
                         break
             elif i == len(self.films_loaded) - 1:
                 print('{} film was not found\n'.format(self.review_name))
-                await ctx.send('Фильм "{}" не был обнаружен. Добавь его с помошью ",madd "!'.format(self.review_name))
+                await ctx.send('Фильм "{}" не был обнаружен. Добавь его с помошью ",madd"!'.format(self.review_name))
                 break
         with open('./json/film_list.json', 'w', encoding="utf-8") as f:
             f.write(json.dumps(self.films_loaded, sort_keys=False, indent=2))
@@ -102,10 +101,14 @@ class MovieTierList(commands.Cog):
                     self.comment_to_show += '\\10\nКомментарий: ' + \
                         self.films_loaded[i]["Commentary"][j]["reviewer_comment"]
                     self.comment_to_show += '\n```'
-            elif i == len(self.films_loaded) - 1:
-                print('{} film was not found []\n'.format(self.review_name))
-                await ctx.send('Фильм "{}" не был обнаружен'.format(self.review_name))
-                break
+        if arg == '':
+            print('blank line was entered as an arg\n')
+            await ctx.send('Аргументом введена пустая строка')
+            return
+        if self.comment_to_show == '':
+            print('{} film was not found\n'.format(self.review_name))
+            await ctx.send('Фильм "{}" не был обнаружен'.format(self.review_name))
+            return
         await ctx.send(':film_frames:Обзор на ' + self.review_name + ':')
         await ctx.send(self.comment_to_show)
 
