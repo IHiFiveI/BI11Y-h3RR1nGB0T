@@ -38,6 +38,7 @@ class WolfQuotes(commands.Cog):
             self.download_image(ctx.message.attachments[0].url)
         except:
             await ctx.send('Прикрепи картинку то хоть')
+            return
         await ctx.channel.purge(limit=1)
 
         self.file_name = ctx.message.attachments[0].url.split('/')[-1]
