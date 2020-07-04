@@ -20,7 +20,7 @@ class SimpleOrders(commands.Cog):
 
     @commands.command()
     async def clear(self, ctx, arg=1):
-        if is_permission_granted(ctx.message.author.id):
+        if is_permission_granted(ctx.message.author.id) and arg <= 100:
             await ctx.channel.purge(limit=arg + 1)
         else:
             await ctx.channel.send('Отказано')
@@ -94,14 +94,13 @@ class SimpleOrders(commands.Cog):
                            '- перезагрузка выбранного расширения.\n'
                            )
         else:
-            await ctx.send('Вот список команд которыми вы можете пользоваться:\n'
-                           '(для написания команды используй "," (ну как в майнкрафте была "/" ну вы поняли))\n\n\n'
+            await ctx.send('Вот список доступных на данный момент команд:\n\n\n'
                            ':film_frames: Блок фильмов: :film_frames:\n'
                            '```\n'
                            ',madd (название фильма)'
                            '\n```'
                            '- добавить фильм по шаблону: название ] оценка(из 10) ] комментарий\n'
-                           'просто не спрашивайте почему "]" (если вам вдруг не удобно, то скажите, я поправлю)\n'
+                           'просто не спрашивайте почему "]" (но если не удобно, скажите)\n'
                            '```\n'
                            ',maddrev (название фильма)'
                            '\n```'
@@ -118,18 +117,20 @@ class SimpleOrders(commands.Cog):
                            ',mstat (название фильма)'
                            '\n```'
                            '- посмотреть обзоры на фильм по названию\n\n\n'
-                           ':parking::information_source: Блок всякой хероты: :sos:\n'
+                           ':parking: Блок всякой хероты: :parking:\n'
+                           '```\n'
+                           ',help (необязательный аргумент)'
+                           '\n```'
+                           '- выводит это сообщение. Используй ",help tech" для отображения технических команд\n'
                            '```\n'
                            ',ping'
                            '\n```'
                            '- никита зачем\n'
-                           'гигант программирования отец русского python`а\n'
                            '```\n'
                            ',slap (упоминание на сервере)'
                            '\n```'
-                           '- :male_sign:никита:male_sign:зачем:male_sign:\n'
-                           '",slap @I_Hi_Five_I#9085"\n\n'
-                           'Хотите видеть больше? Я писал это 4 недели хз ну вообще слушаю ваши предложения'
+                           '- :male_sign:никита:male_sign:зачем:male_sign:\n\n'
+                           'Хотите видеть больше? Я писал это месяц хз ну вообще слушаю ваши предложения'
                            )
 
     @commands.command()

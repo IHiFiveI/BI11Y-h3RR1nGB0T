@@ -26,7 +26,10 @@ async def unload(ctx, extention):
 
 @client.command()
 async def reload(ctx, extention):
-    client.unload_extension(f'cogs.{extention}')
+    try:
+        client.unload_extension(f'cogs.{extention}')
+    except:
+        pass
     client.load_extension(f'cogs.{extention}')
     print(extention + ' cog reloaded successfully\n')
 

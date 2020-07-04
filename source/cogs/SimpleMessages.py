@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import json
 
 from main import prefix
 from main import is_permission_granted
@@ -12,22 +13,28 @@ class SimpleMessages(commands.Cog):
         self.goose_expectation = {'ЗАПУСКАЕМ\n░', 'запускайте гуся', 'гуся!'}
         self.bogdan_expectation = {'░░▄█████', 'запускайте богдана', 'Богдан!'}
         self.f_expectation = {'f', 'ффф'}
-        self.second_h5message = False
+        with open('./json/reaction_list.json', 'r', encoding='utf-8') as f:
+            self.emoji_react_list = json.loads(f.read())
 
     @commands.Cog.listener()
     async def on_ready(self):
         print('initialized bot: {0.user}\n'
               '==============================================\n'.format(self.client))
 
+    async def add_passive_emoji_react(self, message):
+        for i in range(len(self.emoji_react_list)):
+            if self.emoji_react_list[i]["user_id"] == message.author.id:
+                if not self.emoji_react_list[i]["msg_state"]:
+                    for j in range(len(self.emoji_react_list[i]["emoji"])):
+                        await message.add_reaction(self.emoji_react_list[i]["emoji"][j])
+                self.emoji_react_list[i]["msg_state"] = not self.emoji_react_list[i]["msg_state"]
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.content.startswith(prefix) or message.author == self.client.user:
             return
 
-        if is_permission_granted(message.author.id):
-            if self.second_h5message:
-                await message.add_reaction('🤚')
-            self.second_h5message = not self.second_h5message
+        await self.add_passive_emoji_react(message)
 
         for taken_f in self.f_expectation:
             if message.content.startswith(taken_f) and len(message.content) <= 3:
