@@ -1,4 +1,3 @@
-import sys
 import os
 import random
 
@@ -7,7 +6,6 @@ from discord.ext import commands
 import json
 import requests
 import shutil
-# import cv2
 from PIL import Image, ImageDraw, ImageFont
 
 
