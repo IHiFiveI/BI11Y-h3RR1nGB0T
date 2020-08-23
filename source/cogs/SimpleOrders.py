@@ -18,7 +18,7 @@ class SimpleOrders(commands.Cog):
         self.pongEnding = '!'
         self.players = {}
 
-    @commands.command()
+    @commands.command(pass_context=True, aliases=['cls'])
     async def clear(self, ctx, arg=1):
         if is_permission_granted(ctx.message.author.id) and arg <= 100:
             await ctx.channel.purge(limit=arg + 1)
@@ -27,14 +27,19 @@ class SimpleOrders(commands.Cog):
 
     @commands.command(pass_context=True, aliases=['slapp', 's'])
     async def slap(self, ctx, *, arg=''):
-        if arg == 'bass' or arg == 'BASS':
+        # checking arguments
+        if arg == ('🅱️ass' or 'bass' or 'BASS'):
             await ctx.channel.send(file=discord.File('./images/mystery.png'))
             return
         arg = self.mention_to_id(arg)
-        if not arg:
+        if arg == 715445878395240470:
+            await ctx.channel.send('Нет-нет-нет, дружок-пирожок')
+            return
+        elif not arg:
             await ctx.send("SLAPP не удастся....")
             return
-
+        #needs to be rewritten into other function
+        # finding channel
         self.slap_channel = ''
         for channel_to_search in ctx.guild.voice_channels:
             for member in channel_to_search.members:
@@ -43,35 +48,39 @@ class SimpleOrders(commands.Cog):
         if self.slap_channel == '':
             await ctx.send('Некому сделать slapp :(')
             return
+        # joining channel
         self.voice = get(self.client.voice_clients, guild=ctx.guild)
-
         if self.voice and self.voice.is_connected():
             await self.voice.move_to(self.slap_channel)
         else:
             self.voice = await self.slap_channel.connect()
-
+        # playing sound
         self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
         self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
         self.voice.source.volume = 0.6
         while self.voice.is_playing():
             await asyncio.sleep(1)
         await ctx.send("Подтверждаю SLAPP")
-
+        # disconnecting
         if self.voice and self.voice.is_connected():
             await self.voice.disconnect()
 
     def mention_to_id(self, arg):
+        # id that taken from mention looks like '<@!id>', when id - 18 letters long string 
+        # removing unnecessary symbols from parsed string
         if len(arg) == 22:
             for letter in '<>@!':
                 arg = arg.replace(letter, "")
+        # string to int convertation
         try:
             arg = int(arg)
         except:
             print('cannot convert argument to int\n')
             arg = 0
+
         return arg
 
-    @commands.command()
+    @commands.command(pass_context=True, aliases=['halp'])
     async def help(self, ctx, *, arg=''):
         if arg == 'tech':
             await ctx.send(':wrench: Технические команды :tools:\n'
@@ -130,20 +139,19 @@ class SimpleOrders(commands.Cog):
                            ',slap (упоминание на сервере)'
                            '\n```'
                            '- :male_sign:никита:male_sign:зачем:male_sign:\n\n'
-                           'Хотите видеть больше? Я писал это месяц хз ну вообще слушаю ваши предложения'
                            )
 
     @commands.command()
     async def ping(self, ctx):
         if self.pongCount == 4:
-            await ctx.send('you knew, im getting tired')
+            await ctx.send('знаешь, я начинаю уставать')
         elif self.pongCount == 6:
             self.pongEnding = ""
         elif self.pongCount == 13:
-            await ctx.send('can you stop, please?')
+            await ctx.send('может прекратим, пожалуйста?')
             self.pongEnding = "."
         elif self.pongCount == 16:
-            await ctx.send('ok bye retards i dont want to play with you anymore')
+            await ctx.send('ладно ретарды всем пока я не буду с вами играть больше')
             await self.client.close()
         try:
             await ctx.send('pong' + self.pongEnding)
