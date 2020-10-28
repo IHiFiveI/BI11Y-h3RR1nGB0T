@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import json
+import os
+import random
 
 from main import prefix
 from main import is_permission_granted
@@ -13,8 +15,20 @@ class SimpleMessages(commands.Cog):
         self.goose_expectation = {'ЗАПУСКАЕМ\n░', 'запускайте гуся', 'гуся!'}
         self.bogdan_expectation = {'░░▄█████', 'запускайте богдана', 'Богдан!'}
         self.f_expectation = {'f', 'ффф'}
-        with open('./json/reaction_list.json', 'r', encoding='utf-8') as f:
+        self.servers_own_reactions = ""
+
+    def get_reaction(self, arg):
+        self.server_reaction_path = './json/{}'.format(arg)
+
+        if not os.path.exists(self.server_reaction_path):
+            os.mkdir(self.server_reaction_path)
+            with open(self.server_reaction_path + '/reaction_list.json', 'w') as fp:
+                fp.write('[\n]')
+
+        with open(self.server_reaction_path + '/reaction_list.json', 'r', encoding='utf-8') as f:
             self.emoji_react_list = json.loads(f.read())
+        
+        return self.emoji_react_list
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -22,12 +36,12 @@ class SimpleMessages(commands.Cog):
               '==============================================\n'.format(self.client))
 
     async def add_passive_emoji_react(self, message):
-        for i in range(len(self.emoji_react_list)):
-            if self.emoji_react_list[i]["user_id"] == message.author.id:
-                if not self.emoji_react_list[i]["msg_state"]:
-                    for j in range(len(self.emoji_react_list[i]["emoji"])):
-                        await message.add_reaction(self.emoji_react_list[i]["emoji"][j])
-                self.emoji_react_list[i]["msg_state"] = not self.emoji_react_list[i]["msg_state"]
+        self.servers_own_reactions = self.get_reaction(message.guild.id)
+        for i in range(len(self.servers_own_reactions)):
+            if self.servers_own_reactions[i]["user_id"] == message.author.id:
+                if random.randint(1,9) % 3 == 0:
+                    for j in range(len(self.servers_own_reactions[i]["emoji"])):
+                        await message.add_reaction(self.servers_own_reactions[i]["emoji"][j])
 
     @commands.Cog.listener()
     async def on_message(self, message):
