@@ -18,44 +18,57 @@ class SimpleOrders(commands.Cog):
         self.pongEnding = '!'
         self.players = {}
 
-    @commands.command()
+    @commands.command(pass_context=True, aliases=['cls'])
     async def clear(self, ctx, arg=1):
         if is_permission_granted(ctx.message.author.id) and arg <= 100:
             await ctx.channel.purge(limit=arg + 1)
         else:
             await ctx.channel.send('Отказано')
 
-    @commands.command(pass_context=True, aliases=['slapp', 's'])
+    @commands.command(pass_context=True, aliases=['pryamo', 'ahd'])
+    async def ahead(self, ctx, *, arg=''):
+        persons_id = self.mention_to_id(arg)
+        if not persons_id:
+            return
+
+        await ctx.send("Прямо дикий <@!{}>!".format(persons_id))
+        await self.sound_play(ctx, persons_id, 'scav_ahead', 'Никого не вижу...')
+
+    @commands.command(pass_context=True, aliases=['slapp'])
     async def slap(self, ctx, *, arg=''):
         if arg == 'bass' or arg == 'BASS':
             await ctx.channel.send(file=discord.File('./images/mystery.png'))
             return
-        arg = self.mention_to_id(arg)
-        if not arg:
+        persons_id = self.mention_to_id(arg)
+        if not persons_id:
             await ctx.send("SLAPP не удастся....")
             return
 
-        self.slap_channel = ''
+        await self.sound_play(ctx, persons_id, 'slap', 'Некому сделать slapp :(')
+
+        await ctx.send("Подтверждаю SLAPP")
+
+    async def sound_play(self, ctx, persons_id, sound_name, error_text):
+        self.mentioned_persons_channel = ''
         for channel_to_search in ctx.guild.voice_channels:
             for member in channel_to_search.members:
-                if member.id == arg:
-                    self.slap_channel = member.voice.channel
-        if self.slap_channel == '':
-            await ctx.send('Некому сделать slapp :(')
+                if member.id == persons_id:
+                    self.mentioned_persons_channel = member.voice.channel
+        if self.mentioned_persons_channel == '':
+            await ctx.send(error_text)
             return
+
         self.voice = get(self.client.voice_clients, guild=ctx.guild)
-
         if self.voice and self.voice.is_connected():
-            await self.voice.move_to(self.slap_channel)
+            await self.voice.move_to(self.mentioned_persons_channel)
         else:
-            self.voice = await self.slap_channel.connect()
+            self.voice = await self.mentioned_persons_channel.connect()
 
-        self.voice.play(discord.FFmpegPCMAudio('./audio/slap.mp3'))
+        self.voice.play(discord.FFmpegPCMAudio('./audio/{}.mp3'.format(sound_name)))
         self.voice.source = discord.PCMVolumeTransformer(self.voice.source)
         self.voice.source.volume = 0.6
         while self.voice.is_playing():
             await asyncio.sleep(1)
-        await ctx.send("Подтверждаю SLAPP")
 
         if self.voice and self.voice.is_connected():
             await self.voice.disconnect()
@@ -130,6 +143,10 @@ class SimpleOrders(commands.Cog):
                            ',slap (упоминание на сервере)'
                            '\n```'
                            '- :male_sign:\n'
+                           '```\n'
+                           ',ahead (упоминание на сервере)'
+                           '\n```'
+                           '- сообщить товарищам о присутствии кого-то рядом\n'
                            )
 
     @commands.command()
