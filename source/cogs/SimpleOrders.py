@@ -67,7 +67,7 @@ class SimpleOrders(commands.Cog):
         try:
             arg = int(arg)
         except:
-            print('cannot convert argument to int\n')
+            print('"{}" cannot be converted to int\n'.format(arg))
             arg = 0
         return arg
 
@@ -125,18 +125,17 @@ class SimpleOrders(commands.Cog):
                            '```\n'
                            ',ping'
                            '\n```'
-                           '- никита зачем\n'
+                           '- паскаль информатика 3 класс горячев горина суворова гдз\n'
                            '```\n'
                            ',slap (упоминание на сервере)'
                            '\n```'
-                           '- :male_sign:никита:male_sign:зачем:male_sign:\n\n'
-                           'Хотите видеть больше? Я писал это месяц хз ну вообще слушаю ваши предложения'
+                           '- :male_sign:\n'
                            )
 
     @commands.command()
     async def ping(self, ctx):
         if self.pongCount == 4:
-            await ctx.send('you knew, im getting tired')
+            await ctx.send('you know, im getting tired')
         elif self.pongCount == 6:
             self.pongEnding = ""
         elif self.pongCount == 13:
